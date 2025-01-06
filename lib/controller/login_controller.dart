@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,6 +34,12 @@ class LoginController extends GetxController {
         password: password.text,
       );
       if (userCred.user != null) {
+        await FirebaseFirestore.instance.collection("users").add(
+          {
+            "id": userCred.user?.uid,
+            "email": userCred.user?.email ?? "",
+          },
+        );
         Get.toNamed("home_page");
       }
     } on FirebaseAuthException catch (e) {
