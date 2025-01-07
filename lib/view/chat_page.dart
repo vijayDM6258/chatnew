@@ -1,15 +1,21 @@
+import 'package:chatnew/controller/chat_controller.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 
 class ChatPage extends StatelessWidget {
-  const ChatPage({super.key});
+  ChatController controller = Get.put(ChatController());
+
+  ChatPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Other User Email"),
+        title: Text("${controller.arg["email"]}"),
       ),
       body: Column(
         children: [
@@ -34,10 +40,20 @@ class ChatPage extends StatelessWidget {
             children: [
               Expanded(
                 child: TextFormField(
+                  controller: controller.msgController,
                   decoration: InputDecoration(hintText: "Message", border: OutlineInputBorder()),
                 ),
               ),
-              IconButton(onPressed: () {}, icon: Icon(Icons.send))
+              IconButton(
+                  onPressed: () async {
+                    if (controller.msgController.text.trim().isNotEmpty) {
+                      await FirebaseFirestore.instance
+                          .collection("message")
+                          .add({"msg": controller.msgController.text, "time": DateTime.now(), "chat_room_id": controller.arg["chat_room_id"]});
+                      controller.msgController.clear();
+                    }
+                  },
+                  icon: Icon(Icons.send))
             ],
           ),
         ],
