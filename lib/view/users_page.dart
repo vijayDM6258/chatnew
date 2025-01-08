@@ -52,6 +52,7 @@ class UsersPage extends StatelessWidget {
                       Get.toNamed("chat_page", arguments: {
                         "email": "${user["email"]}",
                         "chat_room_id": chatRoomId,
+                        "receiver_id": user["id"],
                       });
                     },
                   );
