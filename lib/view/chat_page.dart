@@ -17,6 +17,32 @@ class ChatPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("${controller.arg["email"]}"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance.collection("users").doc(controller.arg["receiver_id"]).snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    var otherUser = snapshot.data?.data() as Map<String, dynamic>;
+                    print("snapshot.data.runtimeType ${otherUser}");
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(otherUser["isOnline"] ? "Online" : "Offline"),
+                        Icon(
+                          Icons.circle,
+                          size: 12,
+                          color: otherUser["isOnline"] ? Colors.green : Colors.red,
+                        ),
+                      ],
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                }),
+          ),
+        ],
       ),
       body: Column(
         children: [

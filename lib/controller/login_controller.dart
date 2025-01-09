@@ -34,12 +34,19 @@ class LoginController extends GetxController {
         password: password.text,
       );
       if (userCred.user != null) {
-        await FirebaseFirestore.instance.collection("users").add(
+        await FirebaseFirestore.instance.collection("users").doc(userCred.user?.uid).set(
           {
             "id": userCred.user?.uid,
             "email": userCred.user?.email ?? "",
           },
         );
+
+        // await FirebaseFirestore.instance.collection("users").add(
+        //   {
+        //     "id": userCred.user?.uid,
+        //     "email": userCred.user?.email ?? "",
+        //   },
+        // );
         Get.toNamed("home_page");
       }
     } on FirebaseAuthException catch (e) {
