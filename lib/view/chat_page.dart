@@ -61,6 +61,9 @@ class ChatPage extends StatelessWidget {
                         Map<String, dynamic> data = msg.data() as Map<String, dynamic>;
 
                         bool isSender = data["sender"] == FirebaseAuth.instance.currentUser?.uid;
+                        if (data["chat_room_id"] != controller.arg["chat_room_id"]) {
+                          return SizedBox.shrink();
+                        }
                         return Align(
                           alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
                           child: Container(

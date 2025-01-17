@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -30,6 +31,16 @@ class HomeController extends GetxController {
         }
       },
     );
+    updateFirebaseToken();
     // appLifecycleListener.dispose();
+  }
+
+  Future<void> updateFirebaseToken() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid ?? "").update(
+      {
+        "fcmToken": token,
+      },
+    );
   }
 }
