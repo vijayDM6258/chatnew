@@ -29,11 +29,11 @@ class ChatPage extends StatelessWidget {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(otherUser["isOnline"] ? "Online" : "Offline"),
+                        Text((otherUser["isOnline"] == true) ? "Online" : "Offline"),
                         Icon(
                           Icons.circle,
                           size: 12,
-                          color: otherUser["isOnline"] ? Colors.green : Colors.red,
+                          color: (otherUser["isOnline"] == true) ? Colors.green : Colors.red,
                         ),
                       ],
                     );
@@ -101,6 +101,10 @@ class ChatPage extends StatelessWidget {
                         "chat_room_id": controller.arg["chat_room_id"],
                         "sender": FirebaseAuth.instance.currentUser?.uid,
                         "receiver": controller.arg["receiver_id"]
+                      });
+                      await FirebaseFirestore.instance.collection("chat_room").doc(controller.arg["chat_room_id"]).update({
+                        "last_msg": controller.msgController.text,
+                        "unread": FieldValue.increment(1),
                       });
                       controller.msgController.clear();
                     }

@@ -1,4 +1,5 @@
 import 'package:chatnew/controller/home_controller.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,8 @@ class _HomePageState extends State<HomePage> {
       (event) {
         print("Notification title  => ${event.notification?.title}");
         print("Notification desc   => ${event.notification?.body}");
-        showAppNotification(event.notification?.title ?? "", event.notification?.body ?? "");
+        controller.showAppNotification(event.notification?.title ?? "", event.notification?.body ?? "");
+        // controller.showScheduleAppNotification(event.notification?.title ?? "", event.notification?.body ?? "");
       },
     );
   }
@@ -41,18 +43,40 @@ class _HomePageState extends State<HomePage> {
                 FirebaseAuth.instance.signOut();
                 Navigator.pushReplacementNamed(context, "/");
               },
-              icon: Icon(Icons.logout))
+              icon: Icon(Icons.logout)),
+          IconButton(
+              onPressed: () {
+                // controller.showScheduleAppNotification("hello ${DateTime.now()}", "All good morning");
+                // controller.showBigPictureAppNotification("hello", "Flutter Image");
+                controller.showMediaAppNotification("Hello <b>Bhavik</b>", "Hello <b>Flutter</b>");
+              },
+              icon: Icon(Icons.notifications))
         ],
       ),
-      body: ListView.builder(
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text("Name"),
-            subtitle: Text("Last Msg"),
-            trailing: Text("Time"),
-          );
-        },
-      ),
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance.collection("chat_room").snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              List<QueryDocumentSnapshot<Map<String, dynamic>>> chatRoom = snapshot.data?.docs ?? [];
+              return ListView.builder(
+                itemCount: chatRoom.length,
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> room = chatRoom[index].data();
+                  return ListTile(
+                    title: Text("${room["user_b_email"]}"),
+                    subtitle: Text("${room["last_msg"]}"),
+                    trailing: ((int.tryParse("${room["unread"]}") ?? 0) > 0)
+                        ? CircleAvatar(
+                            child: Text("${room["unread"]}"),
+                          )
+                        : null,
+                  );
+                },
+              );
+            } else {
+              return CircularProgressIndicator();
+            }
+          }),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           Get.toNamed("users_page");
@@ -64,20 +88,8 @@ class _HomePageState extends State<HomePage> {
 
   void initNotification() {
     flutterLocalNotificationsPlugin.initialize(
-      InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')),
-    );
-  }
-
-  void showAppNotification(String title, String desc) async {
-    flutterLocalNotificationsPlugin.show(
-      0,
-      title,
-      desc,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          "Chat",
-          "ChatApp",
-        ),
+      InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       ),
     );
   }

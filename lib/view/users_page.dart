@@ -29,17 +29,13 @@ class UsersPage extends StatelessWidget {
                           .where("user_b", isEqualTo: user["id"]);
 
                       QuerySnapshot<Map<String, dynamic>> data = await chatRoom.get();
-
-                      data.docs.forEach((element) {
-                        print("data id  ${element.id}");
-                        print("data  ${element.data()}");
-                      });
                       String chatRoomId = "";
-
                       if (data.docs.isEmpty) {
                         DocumentReference dataAdded = await FirebaseFirestore.instance.collection("chat_room").add({
                           "user_a": FirebaseAuth.instance.currentUser?.uid,
                           "user_b": user["id"],
+                          "user_a_email": FirebaseAuth.instance.currentUser?.email ?? "",
+                          "user_b_email": user["email"],
                           "users": [FirebaseAuth.instance.currentUser?.uid, user["id"]],
                           "last_msg": "",
                         });
