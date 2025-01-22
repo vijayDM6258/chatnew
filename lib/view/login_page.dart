@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../controller/login_controller.dart';
 
@@ -73,6 +74,18 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
+            ElevatedButton(
+                onPressed: () async {
+                  GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ["email"]);
+                  try {
+                    var act = await _googleSignIn.signIn();
+                    print("act ${act?.email}");
+                    print("act ${act?.id}");
+                  } catch (e) {
+                    print("google Error $e");
+                  }
+                },
+                child: Text("Google login"))
           ],
         ),
       ),
