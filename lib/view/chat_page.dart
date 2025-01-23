@@ -106,6 +106,7 @@ class ChatPage extends StatelessWidget {
                         "last_msg": controller.msgController.text,
                         "unread": FieldValue.increment(1),
                       });
+                      controller.sendNotification(controller.msgController.text);
                       controller.msgController.clear();
                     }
                   },
