@@ -32,14 +32,14 @@ class ChatController extends GetxController {
 
   Future<void> sendNotification(String text) async {
     Map<String, dynamic> payload = {
-      "token": "fkGZeZcIQTOaU16ljAgqG1:APA91bGGNUg-dMr9GxENkqxafzEOTsqb-7ARHKIX_xulr3lD4JxluOJvhQXngSciA6kjUVsCD2D4PWomtg3_LnQeKNT0kgKS4qkvkYQI5v9TmfQN8Ko6ozw",
+      "token": arg["fcmToken"],
       "title": "New chat Message",
-      "msg": text
+      "msg": text,
     };
     print("sendNotification $payload");
 
     http.Response res = await http.post(
-      Uri.parse("http://localhost:3000/notificaiton"),
+      Uri.parse("http://192.168.200.217:3000/notificaiton"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
     );
