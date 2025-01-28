@@ -11,6 +11,8 @@ class ChatController extends GetxController {
 
   ScrollController scrollController = ScrollController();
 
+  RxString editMsgId = "".obs;
+
   void jumpToEnd() {
     Future.delayed(
       Duration(milliseconds: 200),

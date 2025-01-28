@@ -59,21 +59,27 @@ class ChatPage extends StatelessWidget {
                       itemBuilder: (context, index) {
                         var msg = msgList[index];
                         Map<String, dynamic> data = msg.data() as Map<String, dynamic>;
-
                         bool isSender = data["sender"] == FirebaseAuth.instance.currentUser?.uid;
                         if (data["chat_room_id"] != controller.arg["chat_room_id"]) {
                           return SizedBox.shrink();
                         }
                         return Align(
                           alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
-                          child: Container(
-                            decoration: BoxDecoration(color: Colors.black54),
-                            constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width / 1.2),
-                            margin: EdgeInsets.only(top: 10, right: 10, bottom: 10, left: 10),
-                            padding: EdgeInsets.only(top: 10, right: 10, bottom: 10, left: 10),
-                            child: Text(
-                              "${data["msg"]}",
-                              style: TextStyle(color: Colors.white),
+                          child: InkWell(
+                            onLongPress: () async {
+                              print("object ${msg.id}");
+                              controller.editMsgId.value = msg.id;
+                              controller.msgController.text = "${data["msg"]}";
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(color: Colors.black54),
+                              constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width / 1.2),
+                              margin: EdgeInsets.only(top: 10, right: 10, bottom: 10, left: 10),
+                              padding: EdgeInsets.only(top: 10, right: 10, bottom: 10, left: 10),
+                              child: Text(
+                                "${data["msg"]}",
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
                           ),
                         );
@@ -93,8 +99,17 @@ class ChatPage extends StatelessWidget {
                 ),
               ),
               IconButton(
-                  onPressed: () async {
-                    if (controller.msgController.text.trim().isNotEmpty) {
+                onPressed: () async {
+                  if (controller.msgController.text.trim().isNotEmpty) {
+                    if (controller.editMsgId.isNotEmpty) {
+                      // Edit here
+                      await FirebaseFirestore.instance.collection("message").doc(controller.editMsgId.value).update({
+                        "msg": "${controller.msgController.text} (Edited)",
+                        "time": DateTime.now(),
+                      });
+                    } else {
+                      // Add new message
+
                       await FirebaseFirestore.instance.collection("message").add({
                         "msg": controller.msgController.text,
                         "time": DateTime.now(),
@@ -107,10 +122,25 @@ class ChatPage extends StatelessWidget {
                         "unread": FieldValue.increment(1),
                       });
                       controller.sendNotification(controller.msgController.text);
-                      controller.msgController.clear();
                     }
-                  },
-                  icon: Icon(Icons.send))
+                    controller.msgController.clear();
+                  }
+                },
+                icon: Icon(Icons.send),
+              ),
+              Obx(() {
+                if (controller.editMsgId.isNotEmpty) {
+                  return IconButton(
+                      onPressed: () async {
+                        await FirebaseFirestore.instance.collection("message").doc(controller.editMsgId.value).delete();
+                        controller.editMsgId.value = "";
+                        controller.msgController.clear();
+                      },
+                      icon: Icon(Icons.delete));
+                } else {
+                  return SizedBox.shrink();
+                }
+              })
             ],
           ),
         ],
