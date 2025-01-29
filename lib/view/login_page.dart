@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -79,8 +80,15 @@ class _LoginPageState extends State<LoginPage> {
                   GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ["email"]);
                   try {
                     var act = await _googleSignIn.signIn();
-                    print("act ${act?.email}");
-                    print("act ${act?.id}");
+                    if (act?.id != null) {
+                      // Goto Home
+                      print("act ${act?.email}");
+                      print("act ${act?.id}");
+                      await FirebaseFirestore.instance.collection("users").doc(act?.id).set(
+                        {"id": act?.id, "email": act?.email ?? ""},
+                      );
+                      Get.offAllNamed("home_page");
+                    }
                   } catch (e) {
                     print("google Error $e");
                   }

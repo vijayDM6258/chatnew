@@ -105,8 +105,8 @@ class ChatPage extends StatelessWidget {
                       // Edit here
                       await FirebaseFirestore.instance.collection("message").doc(controller.editMsgId.value).update({
                         "msg": "${controller.msgController.text} (Edited)",
-                        "time": DateTime.now(),
                       });
+                      controller.editMsgId.value = "";
                     } else {
                       // Add new message
 
